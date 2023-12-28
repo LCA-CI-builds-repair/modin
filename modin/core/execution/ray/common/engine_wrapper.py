@@ -20,7 +20,7 @@ To be used as a piece of building a Ray-based engine.
 import asyncio
 
 import ray
-
+from modin.core.execution.ray.common.utils import ObjectIDType
 
 @ray.remote
 def _deploy_ray_func(func, *args, **kwargs):  # pragma: no cover
@@ -89,7 +89,7 @@ class RayWrapper:
         boolean
             If the value is a future.
         """
-        return isinstance(item, ray.ObjectRef)
+        return isinstance(item, ObjectIDType)
 
     @classmethod
     def materialize(cls, obj_id):
