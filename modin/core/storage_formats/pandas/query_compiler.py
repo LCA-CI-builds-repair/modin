@@ -522,7 +522,6 @@ class PandasQueryCompiler(BaseQueryCompiler):
         sort = kwargs.get("sort", False)
 
         if how in ["left", "inner"] and left_index is False and right_index is False:
-            right_pandas = right.to_pandas()
             kwargs["sort"] = False
 
             def should_keep_index(left, right):
