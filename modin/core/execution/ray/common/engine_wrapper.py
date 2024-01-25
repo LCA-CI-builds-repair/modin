@@ -20,7 +20,8 @@ To be used as a piece of building a Ray-based engine.
 import asyncio
 
 import ray
-from modin.core.execution.ray.common.utils import ObjectIDType
+from ray.util.client.common import ClientObjectRef
+
 
 @ray.remote
 def _deploy_ray_func(func, *args, **kwargs):  # pragma: no cover
@@ -89,6 +90,7 @@ class RayWrapper:
         boolean
             If the value is a future.
         """
+        ObjectIDType = (ray.ObjectRef, ClientObjectRef)
         return isinstance(item, ObjectIDType)
 
     @classmethod
