@@ -655,6 +655,11 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         o not in right_pandas.columns and o not in self.columns
                         for o in on
                     )
+                elif left_on is not None:
+                    keep_index = any(
+                        o not in right_pandas.columns and o not in self.columns
+                        for o in left_on
+                    )
 
             if sort:
                 if left_on is not None and right_on is not None:
