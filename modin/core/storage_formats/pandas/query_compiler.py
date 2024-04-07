@@ -655,6 +655,13 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         o not in right_pandas.columns and o not in self.columns
                         for o in on
                     )
+                    # Also check if any of the join columns are in the index.
+                    if keep_index:
+                        return (
+                            self.index
+                            if keep_index
+                            else self.index.drop_duplicates().rename(index=str)
+                        )
 
             if sort:
                 if left_on is not None and right_on is not None:
