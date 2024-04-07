@@ -637,24 +637,41 @@ class PandasQueryCompiler(BaseQueryCompiler):
             # Here we want to understand whether we're joining on a column or on an index level.
             # It's cool if indexes are already materialized so we can easily check that, if not
             # it's fine too, we can also decide that by columns, which tend to be already
-            # materialized quite often compared to the indexes.
-            keep_index = False
-            if self._modin_frame.has_materialized_index:
-                keep_index = should_keep_index(self, right_pandas)
-            else:
-                # Have to trigger columns materialization. Hope they're already available at this point.
-                if left_on is not None and right_on is not None:
-                    keep_index = any(
-                        o not in right_pandas.columns
-                        and o in left_on
-                        and o not in self.columns
-                        for o in right_on
-                    )
-                elif on is not None:
-                    keep_index = any(
-                        o not in right_pandas.columns and o not in self.columns
-                        for o in on
-                    )
+
+# materialized quite often compared to the indexes.
+keep_index = False
+
+if self._modin_frame.has_materialized_index:
+# Check if only one of 'left_on' or 'right_on' is provided.
+if left_on is not None and right_on is not None:
+raise MergeError(
+"Error: Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+)
+
+keep_index = should_keep_index(self, right_pandas)
+else:
+# Have to trigger columns materialization. Hope they're already available at this point.
+if left_on is not None:
+if len(left_on) > 1:
+raise MergeError(
+"Error: Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+)
+keep_index = any(
+o not in right_pandas.columns
+and o in left_on
+and o not in self.columns
+for o in left_on
+)
+elif right_on is not None:
+if len(right_on) > 1:
+raise MergeError(
+"Error: Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+)
+keep_index = any(
+o not in self.columns
+and o in right_on
+for o in right_on
+)
 
             if sort:
                 if left_on is not None and right_on is not None:
