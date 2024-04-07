@@ -655,7 +655,13 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         o not in right_pandas.columns and o not in self.columns
                         for o in on
                     )
-
+                    _left_on, _right_on = on, on
+                else:
+                    if left_on is None or right_on is None:
+                        raise MergeError(
+                            "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                        )
+                    _left_on, _right_on = left_on, right_on
             if sort:
                 if left_on is not None and right_on is not None:
                     new_self = (
