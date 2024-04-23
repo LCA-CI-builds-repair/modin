@@ -7,7 +7,25 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software distributed under
-# the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
+# the Licen            new_dtypes = None
+            if self._modin_frame.has_materialized                    keep_index = any(
+                        o not in right_pandas.columns
+                        and o in left_on
+                        and o not in self.columns
+                        for o in right_on
+                    )ns:
+                if left_on is None and right_on is None:
+                    if on is None:
+                        on = [c for c in self.columns if c in right.columns]
+                    _left_on, _right_on = on, on
+                else:
+                    if left_on is None or right_on is None:
+                        raise MergeError(
+                            "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                        )
+                    _left_on, _right_on = left_on, right_on
+
+                try:ted on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific language
 # governing permissions and limitations under the License.
 

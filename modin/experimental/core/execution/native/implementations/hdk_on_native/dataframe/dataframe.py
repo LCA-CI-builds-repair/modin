@@ -21,7 +21,13 @@ import numpy as np
 import pandas as pd
 import pyarrow
 from pandas._libs.lib import no_default
-from pandas.core.dtypes.common import (
+from panda        if left_on is None or right_on is None:
+            raise MergeError(
+                "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+            )
+        assert len(left_on) == len(
+            right_on
+        ), "'left_on' and 'right_on' lengths don't match"e.dtypes.common import (
     _get_dtype,
     is_bool_dtype,
     is_datetime64_dtype,
