@@ -1,6 +1,29 @@
 # Licensed to Modin Development Team under one or more contributor license agreements.
 # See the NOTICE file distributed with this work for additional information regarding
-# copyright ownership.  The Modin Development Team licenses this file to you under the
+# cop    # Check for invalid combinations of parameters
+    if (on and (left_index or right_index)) or (left_on and left_index) or (right_on and right_index):
+        raise ValueError("Invalid combination: Can't use left/right_index with left/right_on or on.")
+
+    # Check if 'on' is set, then 'left_on' and 'right_on' should not be set
+    if on is not None:
+        if left_on is not None or right_on is not None:
+            raise ValueError("Invalid parameters: If 'on' is set, 'left_on' and 'right_on' cannot be set.")
+        left_on = on
+        right_on = on
+
+    # Check for conflicting parameters 'by', 'left_by', and 'right_by'
+    if by is not None:
+        if left_by is not None or right_by is not None:
+            raise ValueError("Invalid parameters: Can't have both 'by' and 'left_by' or 'right_by'.")
+        left_by = right_by = by
+
+    # Check for required parameters 'left_on' or 'left_index'
+    if left_on is None and not left_index:
+        raise ValueError("Missing parameters: Must pass 'on', 'left_on', or set 'left_index=True'.")
+
+    # Check for required parameters 'right_on' or 'right_index'
+    if right_on is None and not right_index:
+        raise ValueError("Missing parameters: Must pass 'on', 'right_on', or set 'right_index=True'.")odin Development Team licenses this file to you under the
 # Apache License, Version 2.0 (the "License"); you may not use this file except in
 # compliance with the License.  You may obtain a copy of the License at
 #
