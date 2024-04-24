@@ -48,9 +48,21 @@ from pandas.core.dtypes.common import (
     is_integer_dtype,
     is_list_like,
     is_numeric_dtype,
-    is_object_dtype,
-)
-from pandas.core.indexes.api import ensure_index
+    is_object_dty        if value is not None and method is not None:
+            raise ValueError("Cannot specify both a fill method and value")
+        
+        if method is not None:
+            valid_methods = ["backfill", "bfill", "pad", "ffill"]
+            if method not in valid_methods:
+                expecting = "pad (ffill) or backfill (bfill)"
+                msg = f"Invalid fill method. Expecting {expecting}. Got {method}"
+                raise ValueError(msg)
+        
+        if limit is not None:
+            if not isinstance(limit, int):
+                raise ValueError("Limit must be an integer")
+            elif limit <= 0:
+                raise ValueError("Limit must be greater than 0")ndas.core.indexes.api import ensure_index
 from pandas.core.methods.describe import _refine_percentiles
 from pandas.util._validators import (
     validate_ascending,

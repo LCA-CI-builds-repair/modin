@@ -40,8 +40,19 @@ from modin.core.dataframe.pandas.dataframe.dataframe import PandasDataframe
 from modin.core.dataframe.pandas.metadata import LazyProxyCategoricalDtype
 from modin.core.dataframe.pandas.metadata.dtypes import get_categories_dtype
 from modin.core.dataframe.pandas.utils import concatenate
-from modin.error_message import ErrorMessage
-from modin.experimental.core.storage_formats.hdk.query_compiler import (
+from modin.error_message import ErrorMes        if not isinstance(key, KeyType):
+            raise NotImplementedError("Unsupported key type in filter")
+
+        if not isinstance(key._op, TransformNode) or len(key.columns) != 1:
+            raise NotImplementedError("Unsupported key structure in filter")
+
+        key_col = key.columns[0]
+        if not is_bool_dtype(key._dtypes[key_col]):
+            raise NotImplementedError("Unsupported key dtype in filter")
+
+        base = self._find_common_projections_base(key)
+        if base is None:
+            raise NotImplementedError("Common projections base not found for the key in filter")din.experimental.core.storage_formats.hdk.query_compiler import (
     DFAlgQueryCompiler,
 )
 from modin.pandas.indexing import is_range_like
