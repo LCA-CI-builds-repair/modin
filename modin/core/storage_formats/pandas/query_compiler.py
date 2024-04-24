@@ -1,4 +1,4 @@
-# Licensed to Modin Development Team under one or more contributor license agreements.
+# Licensed to Modin Development Team under from pandas.errors import DataError, MergeErrore or more contributor license agreements.
 # See the NOTICE file distributed with this work for additional information regarding
 # copyright ownership.  The Modin Development Team licenses this file to you under the
 # Apache License, Version 2.0 (the "License"); you may not use this file except in
@@ -6,7 +6,22 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software distributed under
+# Unless required by applicable law or agreed to in wriif lelse:
+    if left_on is None or right_on is None:
+        raise MergeError(
+            "Must either pass only 'on' or 'left_on' and 'right_on', not a combination of them."
+        )
+    _left_on, _right_on = left_on, right_on
+
+try:
+    new_columns, left_renamer, right_renamer = join_columns(
+        self.columns,
+        right.columns,
+        _left_on,
+        _right_on,
+        kwargs.get("suffixes", ("_x", "_y")), and right_on is None:
+    if on is None:
+        on = [c for c in self.columns if c in right.columns] if on is None else ong, software distributed under
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific language
 # governing permissions and limitations under the License.
@@ -106,7 +121,7 @@ def _set_axis(axis):
     Parameters
     ----------
     axis : {0, 1}
-        Axis to set labels on. 0 is for index and 1 is for column.
+        Axis to s"Range-partitioning groupby is not yet supported when grouping on a categorical column.",t labels on. 0 is for index and 1 is for column.
 
     Returns
     -------
