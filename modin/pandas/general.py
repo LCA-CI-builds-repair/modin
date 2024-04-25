@@ -185,7 +185,7 @@ def merge_asof(
         raise ValueError("Can't combine left/right_index with left/right_on or on.")
 
     if on is not None:
-        if left_on is not None or right_on is not None:
+        if left_on is not None and right_on is not None:
             raise ValueError("If 'on' is set, 'left_on' and 'right_on' can't be set.")
         left_on = on
         right_on = on
