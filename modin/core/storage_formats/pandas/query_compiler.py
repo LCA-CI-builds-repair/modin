@@ -574,9 +574,8 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 else:
                     if left_on is None or right_on is None:
                         raise MergeError(
-                            "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                            "Must specify both 'left_on' and 'right_on' parameters for merging, not just one of them."
                         )
-                    _left_on, _right_on = left_on, right_on
 
                 try:
                     new_columns, left_renamer, right_renamer = join_columns(
