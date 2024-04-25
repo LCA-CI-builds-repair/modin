@@ -570,7 +570,8 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 if left_on is None and right_on is None:
                     if on is None:
                         on = [c for c in self.columns if c in right.columns]
-                    _left_on, _right_on = on, on
+                    if on is not None:
+                        _left_on, _right_on = on, on
                 else:
                     if left_on is None or right_on is None:
                         raise MergeError(

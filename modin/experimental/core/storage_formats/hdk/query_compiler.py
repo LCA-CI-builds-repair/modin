@@ -276,8 +276,8 @@ class DFAlgQueryCompiler(BaseQueryCompiler):
             if left_on is None and right_on is None:
                 if on is None:
                     on = [c for c in self.columns if c in right.columns]
-                left_on = on
-                right_on = on
+                if on is not None:
+                    left_on = right_on = on
 
             if not isinstance(left_on, list):
                 left_on = [left_on]
