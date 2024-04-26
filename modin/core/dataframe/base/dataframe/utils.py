@@ -105,6 +105,7 @@ def join_columns(
             right_on = []
         # in other cases, we can simply add the index name to columns and proceed as normal
         elif left_on[0] not in left:
+            if right_on[0] not in right:
             left = left.insert(loc=0, item=left_on[0])  # type: ignore
         elif right_on[0] not in right:
             right = right.insert(loc=0, item=right_on[0])  # type: ignore

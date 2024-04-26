@@ -1119,14 +1119,10 @@ class BaseQueryCompiler(ClassLogger, abc.ABC):
             )
 
         if left_on is None:
-            left_column = self.index
-        else:
-            left_column = self._get_column_as_pandas_series(left_on)
+            left_column = self.index if left_on is None else self._get_column_as_pandas_series(left_on)
 
         if right_on is None:
-            right_column = right.index
-        else:
-            right_column = right._get_column_as_pandas_series(right_on)
+            right_column = right.index if right_on is None else right._get_column_as_pandas_series(right_on)
 
         left_pandas_limited = {"on": left_column}
         right_pandas_limited = {"on": right_column, "right_labels": right.index}

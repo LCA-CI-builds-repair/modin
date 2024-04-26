@@ -278,6 +278,10 @@ class DFAlgQueryCompiler(BaseQueryCompiler):
                     on = [c for c in self.columns if c in right.columns]
                 left_on = on
                 right_on = on
+            elif left_on is None or right_on is None:
+                raise MergeError(
+                    "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                )
 
             if not isinstance(left_on, list):
                 left_on = [left_on]

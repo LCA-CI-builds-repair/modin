@@ -1077,6 +1077,10 @@ class HdkOnNativeDataframe(PandasDataframe):
             The new frame.
         """
         check_join_supported(how)
+        if left_on is None or right_on is None:
+            raise MergeError(
+                "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+            )
         assert (
             left_on is not None and right_on is not None
         ), "Merge with unspecified 'left_on' or 'right_on' parameter is not supported in the engine"
@@ -1099,10 +1103,6 @@ class HdkOnNativeDataframe(PandasDataframe):
                 )
 
         orig_left_on = left_on
-        orig_right_on = right_on
-        left, left_on = check_cols_to_join("left_on", self, left_on)
-        right, right_on = check_cols_to_join("right_on", other, right_on)
-        for left_col, right_col in zip(left_on, right_on):
             left_dt = self._dtypes[left_col]
             right_dt = other._dtypes[right_col]
             if isinstance(left_dt, pd.CategoricalDtype) and isinstance(
@@ -1114,22 +1114,34 @@ class HdkOnNativeDataframe(PandasDataframe):
                 (is_integer_dtype(left_dt) and is_integer_dtype(right_dt))
                 or (is_string_dtype(left_dt) and is_string_dtype(right_dt))
                 or (is_datetime64_dtype(left_dt) and is_datetime64_dtype(right_dt))
+            if left_on is None or right_on is None:
+                raise MergeError(
+                    "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                )
+            if not (
+                (is_integer_dtype(left_dt) and is_integer_dtype(right_dt))
+                or (is_string_dtype(left_dt) and is_string_dtype(right_dt))
+                or (is_datetime64_dtype(left_dt) and is_datetime64_dtype(right_dt))
             ):
                 raise NotImplementedError(
                     f"Join on columns of '{left_dt}' and '{right_dt}' dtypes"
                 )
 
         # If either left_on or right_on has been changed, it means that there
-        # are index columns in the list. Joining by index in this case.
-        if (left_on is not orig_left_on) or (right_on is not orig_right_on):
-            index_cols, exprs, new_dtypes, new_columns = get_data_for_join_by_index(
-                self, other, how, orig_left_on, orig_right_on, sort, suffixes
-            )
-            ignore_index = False
-        else:
-            ignore_index = True
             index_cols = None
             exprs = OrderedDict()
+            new_dtypes = []
+
+            if left_on is None or right_on is None:
+                raise MergeError(
+                    "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                )
+            new_columns, left_renamer, right_renamer = join_columns(
+                left.columns, right.columns, left_on, right_on, suffixes
+            )
+            for old_c, new_c in left_renamer.items():
+                new_dtypes.append(left._dtypes[old_c])
+                exprs[new_c] = left.ref(old_c)
             new_dtypes = []
 
             new_columns, left_renamer, right_renamer = join_columns(

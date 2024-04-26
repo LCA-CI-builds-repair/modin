@@ -537,6 +537,10 @@ class PandasQueryCompiler(BaseQueryCompiler):
                     keep_index = any(
                         o in left.index.names and o in right.index.names for o in on
                     )
+                elif left_on is None or right_on is None:
+                    raise MergeError(
+                        "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                    )
                 return keep_index
 
             def map_func(
@@ -554,10 +558,6 @@ class PandasQueryCompiler(BaseQueryCompiler):
                             stop = sum(axis_lengths[: partition_idx + 1])
 
                             df.index = pandas.RangeIndex(start, stop)
-
-                return df
-
-            # Want to ensure that these are python lists
             if left_on is not None and right_on is not None:
                 left_on = list(left_on) if is_list_like(left_on) else [left_on]
                 right_on = list(right_on) if is_list_like(right_on) else [right_on]
@@ -571,14 +571,17 @@ class PandasQueryCompiler(BaseQueryCompiler):
                     if on is None:
                         on = [c for c in self.columns if c in right.columns]
                     _left_on, _right_on = on, on
-                else:
-                    if left_on is None or right_on is None:
-                        raise MergeError(
-                            "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
-                        )
+                elif left_on is None or right_on is None:
+                    raise MergeError(
+                        "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                    )
                     _left_on, _right_on = left_on, right_on
 
                 try:
+                    new_columns, left_renamer, right_renamer = join_columns(
+                        self.columns,
+                        right.columns,
+                        _left_on,
                     new_columns, left_renamer, right_renamer = join_columns(
                         self.columns,
                         right.columns,
@@ -640,9 +643,6 @@ class PandasQueryCompiler(BaseQueryCompiler):
             # materialized quite often compared to the indexes.
             keep_index = False
             if self._modin_frame.has_materialized_index:
-                keep_index = should_keep_index(self, right_pandas)
-            else:
-                # Have to trigger columns materialization. Hope they're already available at this point.
                 if left_on is not None and right_on is not None:
                     keep_index = any(
                         o not in right_pandas.columns
@@ -668,6 +668,11 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         new_self.sort_index(axis=0, level=on)
                         if keep_index
                         else new_self.sort_rows_by_column_values(on)
+                    )
+                elif left_on is None or right_on is None:
+                    raise MergeError(
+                        "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                    )
                     )
 
             return (
