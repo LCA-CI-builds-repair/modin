@@ -65,8 +65,8 @@ def initialize_dask():
             # set these keys to run tests that write to the mock s3 service. this seems
             # to be the way to pass environment variables to the workers:
             # https://jacobtomlinson.dev/posts/2021/bio-for-2021/
-            access_key = CIAWSAccessKeyID.get()
-            aws_secret = CIAWSSecretAccessKey.get()
+            access_key = get_aws_access_key()
+            aws_secret = get_aws_secret_access_key()
             client.run(
                 lambda: os.environ.update(
                     {
