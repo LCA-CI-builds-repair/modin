@@ -235,11 +235,12 @@ class HdkOnNativeDataframe(PandasDataframe):
                     dtype_index = MultiIndex.from_tuples(index_tuples).append(columns)
                     self.set_dtypes_cache(pd.Series(dtypes, index=dtype_index))
                 else:
-                    self.set_dtypes_cache(pd.Series(dtypes, index=self._table_cols))
-            else:
-                self.set_dtypes_cache(pd.Series(dtypes, index=columns))
-        else:
-            self.set_dtypes_cache(dtypes)
+                    if self._table_cols is not None:
+                        self.set_dtypes_cache(pd.Series(dtypes, index=self._table_cols))
+                    else:
+                        self.set_dtypes_cache(pd.Series(dtypes, index=columns))
+                else:
+                    self.set_dtypes_cache(dtypes)
 
         self._uses_rowid = uses_rowid
         self._force_execution_mode = force_execution_mode

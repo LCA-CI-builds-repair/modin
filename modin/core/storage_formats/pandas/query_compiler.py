@@ -42,7 +42,6 @@ from pandas.core.groupby.base import transformation_kernels
 from pandas.core.indexes.api import ensure_index_from_sequences
 from pandas.core.indexing import check_bool_indexer
 from pandas.errors import DataError, MergeError
-
 from modin.config import CpuCount, RangePartitioningGroupby
 from modin.core.dataframe.algebra import (
     Binary,
@@ -525,6 +524,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
             kwargs["sort"] = False
 
             def should_keep_index(left, right):
+            def should_keep_index(left, right):
                 keep_index = False
                 if left_on is not None and right_on is not None:
                     keep_index = any(
@@ -533,7 +533,6 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         and o in right.index.names
                         for o in left_on
                     )
-                elif on is not None:
                     keep_index = any(
                         o in left.index.names and o in right.index.names for o in on
                     )
@@ -565,6 +564,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 on = list(on) if is_list_like(on) else [on]
 
             new_columns = None
+            new_columns = None
             new_dtypes = None
             if self._modin_frame.has_materialized_columns:
                 if left_on is None and right_on is None:
@@ -576,7 +576,6 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         raise MergeError(
                             "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
                         )
-                    _left_on, _right_on = left_on, right_on
 
                 try:
                     new_columns, left_renamer, right_renamer = join_columns(
