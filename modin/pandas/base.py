@@ -3544,14 +3544,16 @@ class BasePandasDataset(ClassLogger):
         try:
             result = self.agg(func, axis=axis, *args, **kwargs)
         except (TypeError, pandas.errors.SpecificationError):
+        try:
+            # Add try-except block for error handling
             raise
         except Exception as err:
             raise ValueError("Transform function failed") from err
-        if getattr(result, "_pandas_class", None) not in (
-            pandas.Series,
-            pandas.DataFrame,
-        ) or not result.index.equals(self.index):
+        
+        # Improve validation of the transformation result
+        if not isinstance(result, (pandas.Series, pandas.DataFrame)) or not result.index.equals(self.index):
             raise ValueError("Function did not transform")
+        
         return result
 
     def tz_convert(self, tz, axis=0, level=None, copy=None):  # noqa: PR01, RT01, D200

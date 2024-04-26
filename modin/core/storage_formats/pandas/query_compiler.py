@@ -42,7 +42,7 @@ from pandas.core.groupby.base import transformation_kernels
 from pandas.core.indexes.api import ensure_index_from_sequences
 from pandas.core.indexing import check_bool_indexer
 from pandas.errors import DataError, MergeError
-
+# Add necessary corrections and improvements here
 from modin.config import CpuCount, RangePartitioningGroupby
 from modin.core.dataframe.algebra import (
     Binary,
@@ -572,9 +572,9 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         on = [c for c in self.columns if c in right.columns]
                     _left_on, _right_on = on, on
                 else:
-                    if left_on is None or right_on is None:
+                    if left_on is None and right_on is None:
                         raise MergeError(
-                            "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                            "Must pass either 'on' or both 'left_on' and 'right_on', not a combination of them."
                         )
                     _left_on, _right_on = left_on, right_on
 
