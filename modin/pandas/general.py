@@ -193,8 +193,8 @@ def merge_asof(
     if by is not None:
         if left_by is not None or right_by is not None:
             raise ValueError("Can't have both 'by' and 'left_by' or 'right_by'")
-        left_by = right_by = by
-
+        left_by = by
+        right_by = by
     if left_on is None and not left_index:
         raise ValueError("Must pass on, left_on, or left_index=True")
 
