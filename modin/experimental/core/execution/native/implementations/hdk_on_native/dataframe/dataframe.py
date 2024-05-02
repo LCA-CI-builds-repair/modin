@@ -1463,9 +1463,7 @@ class HdkOnNativeDataframe(PandasDataframe):
             for f in frames
         ):
             tables = [
-                t
-                if isinstance(t := f._partitions[0][0].get(), pyarrow.Table)
-                else t.to_arrow()
+                t if isinstance((t := f._partitions[0][0].get()), pyarrow.Table) else t.to_arrow()
                 for f in frames
             ]
             column_names = [c for t in tables for c in t.column_names]
@@ -2120,13 +2118,12 @@ class HdkOnNativeDataframe(PandasDataframe):
         stack = [self]
 
         while stack:
+        while stack:
             frame = stack.pop()
 
             if callable(frame):
-                if isinstance(result := frame(result), DbTable):
+                if isinstance((result := frame(result)), DbTable):
                     result = result.to_arrow()
-            elif input := getattr(frame._op, "input", None):
-                if len(input) == 1:
                     stack.append(frame._op.execute_arrow)
                     stack.append(input[0])
                 else:
@@ -2152,13 +2149,13 @@ class HdkOnNativeDataframe(PandasDataframe):
                             stack.append(frame if callable(frame) else to_arrow)
                             stack.append(tables.append)
                             stack.append(f)
+                            stack.append(frame if callable(frame) else to_arrow)
+                            stack.append(tables.append)
+                            stack.append(f)
                             return result
 
                     to_arrow(result)
-            elif isinstance(result := frame._op.execute_arrow(result), DbTable):
-                result = result.to_arrow()
-
-        return result
+            elif isinstance((result := frame._op.execute_arrow(result)), DbTable):
 
     def _compute_axis_labels_and_lengths(self, axis: int, partitions=None):
         """
