@@ -273,12 +273,17 @@ class DFAlgQueryCompiler(BaseQueryCompiler):
         right_index = kwargs.get("right_index", False)
         """Only non-index joins with explicit 'on' are supported"""
         if left_index is False and right_index is False:
-            if left_on is None and right_on is None:
-                if on is None:
-                    on = [c for c in self.columns if c in right.columns]
+            if on is not None:
+                if left_on is not None or right_on is not None:
+                    raise ValueError("If 'on' is set, 'left_on' and 'right_on' can't be set.")
                 left_on = on
                 right_on = on
-
+            else:
+                if left_on is None and right_on is None:
+                    raise MergeError(
+                        "Must either pass only 'on' or 'left_on' and 'right_on', not a combination of them."
+                    )
+                _left_on, _right_on = left_on, right_on
             if not isinstance(left_on, list):
                 left_on = [left_on]
             if not isinstance(right_on, list):

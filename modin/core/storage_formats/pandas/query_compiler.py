@@ -567,17 +567,17 @@ class PandasQueryCompiler(BaseQueryCompiler):
             new_columns = None
             new_dtypes = None
             if self._modin_frame.has_materialized_columns:
-                if left_on is None and right_on is None:
-                    if on is None:
-                        on = [c for c in self.columns if c in right.columns]
-                    _left_on, _right_on = on, on
+                if on is not None:
+                    if left_on is not None or right_on is not None:
+                        raise ValueError("If 'on' is set, 'left_on' and 'right_on' can't be set.")
+                    _left_on = on
+                    _right_on = on
                 else:
-                    if left_on is None or right_on is None:
+                    if left_on is None and right_on is None:
                         raise MergeError(
-                            "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                            "Must either pass only 'on' or 'left_on' and 'right_on', not a combination of them."
                         )
                     _left_on, _right_on = left_on, right_on
-
                 try:
                     new_columns, left_renamer, right_renamer = join_columns(
                         self.columns,

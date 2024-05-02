@@ -189,18 +189,12 @@ def merge_asof(
             raise ValueError("If 'on' is set, 'left_on' and 'right_on' can't be set.")
         left_on = on
         right_on = on
-
-    if by is not None:
-        if left_by is not None or right_by is not None:
-            raise ValueError("Can't have both 'by' and 'left_by' or 'right_by'")
-        left_by = right_by = by
-
-    if left_on is None and not left_index:
-        raise ValueError("Must pass on, left_on, or left_index=True")
-
-    if right_on is None and not right_index:
-        raise ValueError("Must pass on, right_on, or right_index=True")
-
+    else:
+        if left_on is None and right_on is None:
+            raise MergeError(
+                "Must either pass only 'on' or 'left_on' and 'right_on', not a combination of them."
+            )
+        _left_on, _right_on = left_on, right_on
     return DataFrame(
         query_compiler=left._query_compiler.merge_asof(
             right._query_compiler,
