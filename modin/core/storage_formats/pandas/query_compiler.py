@@ -609,9 +609,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
                     left_dtypes = (
                         ModinDtypes.concat(
                             [self._modin_frame._dtypes, left_index_dtypes]
-                        )
-                        .lazy_get(left_renamer.keys())
-                        .set_index(list(left_renamer.values()))
+                        ).lazy_get(left_renamer.keys()).set_index(list(left_renamer.values())
                     )
                     new_dtypes = ModinDtypes.concat([left_dtypes, right_dtypes])
 
@@ -625,22 +623,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
                     # so we want for partitioning to adapt as well
                     keep_partitioning=False,
                     num_splits=merge_partitioning(
-                        self._modin_frame, right._modin_frame, axis=1
-                    ),
-                    new_columns=new_columns,
-                    sync_labels=False,
-                    dtypes=new_dtypes,
-                    pass_axis_lengths_to_partitions=how == "left",
-                )
-            )
-
-            # Here we want to understand whether we're joining on a column or on an index level.
-            # It's cool if indexes are already materialized so we can easily check that, if not
-            # it's fine too, we can also decide that by columns, which tend to be already
-            # materialized quite often compared to the indexes.
-            keep_index = False
-            if self._modin_frame.has_materialized_index:
-                keep_index = should_keep_index(self, right_pandas)
+No changes needed.
             else:
                 # Have to trigger columns materialization. Hope they're already available at this point.
                 if left_on is not None and right_on is not None:
