@@ -36,7 +36,7 @@ from pandas.core.dtypes.common import (
     is_bool_dtype,
     is_datetime64_any_dtype,
     is_list_like,
-    is_numeric_dtype,
+    is_numeric_dtype
 )
 from pandas.core.groupby.base import transformation_kernels
 from pandas.core.indexes.api import ensure_index_from_sequences
