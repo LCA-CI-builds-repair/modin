@@ -529,11 +529,17 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 if left_on is not None and right_on is not None:
                     keep_index = any(
                         o in left.index.names
-                        and o in right_on
+                        and (o in right.index.names or o in right.columns)
                         and o in right.index.names
                         for o in left_on
                     )
                 elif on is not None:
+                    keep_index = any(
+                        o in left.index.names
+                        and (o in right.index.names or o in right.columns)
+                        for o in on
+                    )
+                else:
                     keep_index = any(
                         o in left.index.names and o in right.index.names for o in on
                     )
