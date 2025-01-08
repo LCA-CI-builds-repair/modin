@@ -522,6 +522,14 @@ class PandasQueryCompiler(BaseQueryCompiler):
         sort = kwargs.get("sort", False)
 
         if how in ["left", "inner"] and left_index is False and right_index is False:
+            # Validate merge parameters
+            if (on is None and (left_on is None or right_on is None)) or (
+                left_on is not None and right_on is not None and len(left_on) != len(right_on)
+            ):
+                raise MergeError(
+                    "Invalid merge parameters: provide 'on' or matching 'left_on' and 'right_on'."
+                )
+
             kwargs["sort"] = False
 
             def should_keep_index(left, right):
