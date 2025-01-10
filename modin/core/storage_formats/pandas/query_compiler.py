@@ -585,13 +585,24 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         _left_on,
                         _right_on,
                         kwargs.get("suffixes", ("_x", "_y")),
+                        right._index_cache,
                     )
                 except NotImplementedError:
                     # This happens when one of the keys to join is an index level. Pandas behaviour
                     # is really complicated in this case, so we're not computing resulted columns for now.
-                    pass
+                    new_columns = pandas.Index(list(self.columns) + list(right.columns))
                 else:
-                    # renamers may contain columns from 'index', so trying to merge index and column dtypes here
+                    # Rename the right frame's columns. Even though they already contain the suffixes we can't
+                    # perform a simple filtering after a merge as it will drop not just the original columns
+                    # used as join keys, but also the suffixes we've just added.
+                    right_renamed = right.rename(columns=right_renamer)
+
+                    # We use the logic from 'join_columns' to know if we're merging on index level(s).
+                    # We need to include the columns that were used as index level keys into the resultant dataframe,
+                    # so we can further join on them.
+                    right = right_renamed[right_renamed.columns.intersection(new_columns)]
+
+                    # renamers may contain indexes, so trying to merge index and column dtypes here
                     right_index_dtypes = (
                         right.index.dtypes
                         if isinstance(right.index, pandas.MultiIndex)
@@ -631,6 +642,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
                     sync_labels=False,
                     dtypes=new_dtypes,
                     pass_axis_lengths_to_partitions=how == "left",
+                    right_renamed=right,
                 )
             )
 
