@@ -527,15 +527,21 @@ class PandasQueryCompiler(BaseQueryCompiler):
             def should_keep_index(left, right):
                 keep_index = False
                 if left_on is not None and right_on is not None:
+                    # Handle both single-level and multi-level indexes
+                    left_index_names = left.index.names if isinstance(left.index, pandas.MultiIndex) else [left.index.name]
+                    right_index_names = right.index.names if isinstance(right.index, pandas.MultiIndex) else [right.index.name]
                     keep_index = any(
-                        o in left.index.names
+                        o in left_index_names
                         and o in right_on
-                        and o in right.index.names
+                        and o in right_index_names
                         for o in left_on
                     )
                 elif on is not None:
+                    # Handle both single-level and multi-level indexes
+                    left_index_names = left.index.names if isinstance(left.index, pandas.MultiIndex) else [left.index.name]
+                    right_index_names = right.index.names if isinstance(right.index, pandas.MultiIndex) else [right.index.name]
                     keep_index = any(
-                        o in left.index.names and o in right.index.names for o in on
+                        o in left_index_names and o in right_index_names for o in on
                     )
                 return keep_index
 
@@ -640,7 +646,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
             # materialized quite often compared to the indexes.
             keep_index = False
             if self._modin_frame.has_materialized_index:
-                keep_index = should_keep_index(self, right_pandas)
+                keep_index = should_keep_index(self, right)
             else:
                 # Have to trigger columns materialization. Hope they're already available at this point.
                 if left_on is not None and right_on is not None:
