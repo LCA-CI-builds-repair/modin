@@ -639,22 +639,20 @@ class PandasQueryCompiler(BaseQueryCompiler):
             # it's fine too, we can also decide that by columns, which tend to be already
             # materialized quite often compared to the indexes.
             keep_index = False
-            if self._modin_frame.has_materialized_index:
-                keep_index = should_keep_index(self, right_pandas)
-            else:
+            self_pandas = self.to_pandas()
+            right_pandas = right.to_pandas()
+            if self_pandas.index.nlevels > 1 or right_pandas.index.nlevels > 1:
+                keep_index = should_keep_index(self_pandas, right_pandas)
+            elif left_on is not None and right_on is not None:
                 # Have to trigger columns materialization. Hope they're already available at this point.
-                if left_on is not None and right_on is not None:
-                    keep_index = any(
-                        o not in right_pandas.columns
-                        and o in left_on
-                        and o not in self.columns
-                        for o in right_on
-                    )
-                elif on is not None:
-                    keep_index = any(
-                        o not in right_pandas.columns and o not in self.columns
-                        for o in on
-                    )
+                keep_index = any(o not in right_pandas.columns and o in left_on for o in right_on)
+            elif on is not None:
+                keep_index = any(o not in right_pandas.columns and o not in self_pandas.columns for o in on)
+
+            if keep_index:
+                new_self = new_self.set_index(new_self.index)
+            else:
+                new_self = new_self.reset_index(drop=True)
 
             if sort:
                 if left_on is not None and right_on is not None:
@@ -666,15 +664,11 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 elif on is not None:
                     new_self = (
                         new_self.sort_index(axis=0, level=on)
-                        if keep_index
+                        if new_self.index.nlevels > 1
                         else new_self.sort_rows_by_column_values(on)
                     )
 
-            return (
-                new_self.reset_index(drop=True)
-                if not keep_index and (kwargs["how"] != "left" or sort)
-                else new_self
-            )
+            return new_self
         else:
             return self.default_to_pandas(pandas.DataFrame.merge, right, **kwargs)
 
