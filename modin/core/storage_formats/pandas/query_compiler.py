@@ -592,7 +592,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
                     pass
                 else:
                     # renamers may contain columns from 'index', so trying to merge index and column dtypes here
-                    right_index_dtypes = (
+                    right_index_dtypes = pandas.Series([], dtype="object") if not hasattr(right.index, "dtypes") else (
                         right.index.dtypes
                         if isinstance(right.index, pandas.MultiIndex)
                         else pandas.Series(
@@ -656,19 +656,20 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         for o in on
                     )
 
-            if sort:
-                if left_on is not None and right_on is not None:
-                    new_self = (
-                        new_self.sort_index(axis=0, level=left_on + right_on)
-                        if keep_index
-                        else new_self.sort_rows_by_column_values(left_on + right_on)
-                    )
-                elif on is not None:
-                    new_self = (
-                        new_self.sort_index(axis=0, level=on)
-                        if keep_index
-                        else new_self.sort_rows_by_column_values(on)
-                    )
+            if sort and self._modin_frame.has_materialized_index:
+                    if left_on is not None and right_on is not None:
+                        sort_keys = left_on + right_on
+                    elif on is not None:
+                        sort_keys = on
+                    else:
+                        sort_keys = None
+
+                    if sort_keys:
+                        new_self = (
+                            new_self.sort_index(axis=0, level=sort_keys)
+                            if keep_index
+                            else new_self.sort_rows_by_column_values(sort_keys)
+                        )
 
             return (
                 new_self.reset_index(drop=True)
