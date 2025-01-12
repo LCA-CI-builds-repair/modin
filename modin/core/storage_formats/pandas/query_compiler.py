@@ -655,11 +655,10 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         o not in right_pandas.columns and o not in self.columns
                         for o in on
                     )
-
             if sort:
                 if left_on is not None and right_on is not None:
                     new_self = (
-                        new_self.sort_index(axis=0, level=left_on + right_on)
+                        new_self.sort_index(axis=0, level=left_on if keep_index else right_on)
                         if keep_index
                         else new_self.sort_rows_by_column_values(left_on + right_on)
                     )
