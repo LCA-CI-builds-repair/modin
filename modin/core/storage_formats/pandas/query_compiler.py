@@ -517,6 +517,21 @@ class PandasQueryCompiler(BaseQueryCompiler):
         on = kwargs.get("on", None)
         left_on = kwargs.get("left_on", None)
         right_on = kwargs.get("right_on", None)
+        if on is not None:
+            on = [on] if isinstance(on, str) else on
+        if left_on is not None:
+            left_on = [left_on] if isinstance(left_on, str) else left_on
+        if right_on is not None:
+            right_on = [right_on] if isinstance(right_on, str) else right_on
+        if (on is not None) and (left_on is not None or right_on is not None):
+            raise MergeError(
+                'Can only pass arguments for `on` OR `left_on` and `right_on`, not a combination of both.'
+            )
+        if on is not None and left_on is not None and right_on is not None:
+            raise MergeError(
+                "Can only pass arguments for `on` OR `left_on` "
+                "and `right_on`, not a combination of both."
+            )
         left_index = kwargs.get("left_index", False)
         right_index = kwargs.get("right_index", False)
         sort = kwargs.get("sort", False)
@@ -558,11 +573,6 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 return df
 
             # Want to ensure that these are python lists
-            if left_on is not None and right_on is not None:
-                left_on = list(left_on) if is_list_like(left_on) else [left_on]
-                right_on = list(right_on) if is_list_like(right_on) else [right_on]
-            elif on is not None:
-                on = list(on) if is_list_like(on) else [on]
 
             new_columns = None
             new_dtypes = None
@@ -574,7 +584,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 else:
                     if left_on is None or right_on is None:
                         raise MergeError(
-                            "Must either pass only 'on' or 'left_on' and 'right_on', not combination of them."
+                            "left_on and right_on must both be specified when not merging on index"
                         )
                     _left_on, _right_on = left_on, right_on
 
@@ -584,7 +594,6 @@ class PandasQueryCompiler(BaseQueryCompiler):
                         right.columns,
                         _left_on,
                         _right_on,
-                        kwargs.get("suffixes", ("_x", "_y")),
                     )
                 except NotImplementedError:
                     # This happens when one of the keys to join is an index level. Pandas behaviour
