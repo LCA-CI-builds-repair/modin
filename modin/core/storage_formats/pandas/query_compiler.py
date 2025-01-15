@@ -527,16 +527,18 @@ class PandasQueryCompiler(BaseQueryCompiler):
             def should_keep_index(left, right):
                 keep_index = False
                 if left_on is not None and right_on is not None:
-                    keep_index = any(
-                        o in left.index.names
-                        and o in right_on
-                        and o in right.index.names
-                        for o in left_on
-                    )
+                    # Check if any of the merge keys are in both indexes
+                    left_idx_names = left.index.names if isinstance(left.index, pandas.MultiIndex) else [left.index.name]
+                    right_idx_names = right.index.names if isinstance(right.index, pandas.MultiIndex) else [right.index.name]
+                    
+                    keep_index = any(l in left_idx_names and r in right_idx_names 
+                                   for l, r in zip(left_on, right_on))
                 elif on is not None:
-                    keep_index = any(
-                        o in left.index.names and o in right.index.names for o in on
-                    )
+                    # Check if merge key is in both indexes
+                    left_idx_names = left.index.names if isinstance(left.index, pandas.MultiIndex) else [left.index.name]
+                    right_idx_names = right.index.names if isinstance(right.index, pandas.MultiIndex) else [right.index.name]
+                    
+                    keep_index = any(o in left_idx_names and o in right_idx_names for o in on)
                 return keep_index
 
             def map_func(
@@ -640,19 +642,19 @@ class PandasQueryCompiler(BaseQueryCompiler):
             # materialized quite often compared to the indexes.
             keep_index = False
             if self._modin_frame.has_materialized_index:
-                keep_index = should_keep_index(self, right_pandas)
+                keep_index = should_keep_index(self, right)
             else:
                 # Have to trigger columns materialization. Hope they're already available at this point.
                 if left_on is not None and right_on is not None:
                     keep_index = any(
-                        o not in right_pandas.columns
+                        o not in right.columns
                         and o in left_on
                         and o not in self.columns
                         for o in right_on
                     )
                 elif on is not None:
                     keep_index = any(
-                        o not in right_pandas.columns and o not in self.columns
+                        o not in right.columns and o not in self.columns
                         for o in on
                     )
 
