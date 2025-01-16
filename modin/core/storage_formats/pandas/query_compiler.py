@@ -249,6 +249,16 @@ def copy_df_for_func(func, display_name: str = None):
 
 @_inherit_docstrings(BaseQueryCompiler)
 class PandasQueryCompiler(BaseQueryCompiler):
+    def materialize_index(self):
+        self._modin_frame.materialize_index()
+
+    def materialize_columns(self):
+        self._modin_frame.materialize_columns()
+
+    def has_materialized_index(self):
+        return self._modin_frame.has_materialized_index
+    def has_materialized_columns(self):
+        return self._modin_frame.has_materialized_columns
     """
     Query compiler for the pandas storage format.
 
