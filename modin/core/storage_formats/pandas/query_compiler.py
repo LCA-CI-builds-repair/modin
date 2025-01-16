@@ -639,10 +639,10 @@ class PandasQueryCompiler(BaseQueryCompiler):
             # it's fine too, we can also decide that by columns, which tend to be already
             # materialized quite often compared to the indexes.
             keep_index = False
+            right_pandas = right.to_pandas()
             if self._modin_frame.has_materialized_index:
                 keep_index = should_keep_index(self, right_pandas)
             else:
-                # Have to trigger columns materialization. Hope they're already available at this point.
                 if left_on is not None and right_on is not None:
                     keep_index = any(
                         o not in right_pandas.columns
