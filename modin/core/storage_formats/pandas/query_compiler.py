@@ -723,11 +723,9 @@ class PandasQueryCompiler(BaseQueryCompiler):
             dtype = pandas.Index([kwargs.get("fill_value", np.nan)]).dtype
             if axis == 0:
                 new_dtypes = self.dtypes.copy()
-                # "-1" means that the required labels are missing in the dataframe and the
-                # corresponding rows will be filled with "fill_value" that may change the column type.
                 if indexer is not None and -1 in indexer:
-                    for col, col_dtype in new_dtypes.items():
-                        new_dtypes[col] = find_common_type((col_dtype, dtype))
+                    for idx, col in new_dtypes.items():
+                        new_dtypes[idx] = find_common_type((col, dtype))
             else:
                 new_dtypes = self.dtypes.reindex(labels, fill_value=dtype)
         new_modin_frame = self._modin_frame.apply_full_axis(
