@@ -645,9 +645,9 @@ class PandasQueryCompiler(BaseQueryCompiler):
                 # Have to trigger columns materialization. Hope they're already available at this point.
                 if left_on is not None and right_on is not None:
                     keep_index = any(
-                        o not in right_pandas.columns
+                        o in right_pandas.columns
                         and o in left_on
-                        and o not in self.columns
+                        and o in self.columns
                         for o in right_on
                     )
                 elif on is not None:
