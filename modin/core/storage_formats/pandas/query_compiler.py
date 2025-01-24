@@ -652,7 +652,7 @@ class PandasQueryCompiler(BaseQueryCompiler):
                     )
                 elif on is not None:
                     keep_index = any(
-                        o not in right_pandas.columns and o not in self.columns
+                        o in right_pandas.columns or o in self.columns
                         for o in on
                     )
 
